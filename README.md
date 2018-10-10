@@ -237,3 +237,13 @@ let x = { a: 1, b: 2, c: 3, d: 4 };
 getProperty(x, 'a'); // okay
 getProperty(x, 'm'); // error: Argument of type 'm' isn't assignable to 'a' | 'b' | 'c' | 'd'.
 ```
+
+## 枚举
+
+## 类型推论
+
+```typescript
+let x = [0, 1, null]; // number | null
+
+let zoo = [new Rhino(), new Elephant(), new Snake()]; // (Rhino | Elephant | Snake)[]
+```
