@@ -180,3 +180,60 @@ function buildName(firstName: string, ...restOfName: string[]) {
 ### This 和箭头函数
 
 箭头函数能保存函数创建时的`this`值，而不是调用时的值。
+
+## 泛型
+
+### 介绍
+
+```typescript
+function identity<T>(arg: T): T {
+  return arg;
+}
+```
+
+我们给`identity`添加了类型变量`T`。 `T`帮助我们捕获用户传入的类型（比如：`number`），之后我们就可以使用这个类型。 之后我们再次使用了`T`当做返回值类型。现在我们可以知道参数类型与返回值类型是相同的了。 这允许我们跟踪函数里使用的类型的信息。
+
+### 泛型类
+
+```typescript
+class GenericNumber<T> {
+  zeroValue: T;
+  add: (x: T, y: T) => T;
+}
+
+let myGenericNumber = new GenericNumber<number>();
+myGenericNumber.zeroValue = 0;
+myGenericNumber.add = function(x, y) {
+  return x + y;
+};
+```
+
+### 泛型约束
+
+我们定义一个接口来描述约束条件。 创建一个包含`.length`属性的接口，使用这个接口和`extends`关键字还实现约束：
+
+```typescript
+interface Lengthwise {
+  length: number;
+}
+
+function loggingIdentity<T extends Lengthwise>(arg: T): T {
+  console.log(arg.length); // Now we know it has a .length property, so no more error
+  return arg;
+}
+```
+
+#### 在泛型约束中使用类型参数
+
+你可以声明一个类型参数，且它被另一个类型参数所约束。 比如，现在我们想要用属性名从对象里获取这个属性。 并且我们想要确保这个属性存在于对象`obj`上，因此我们需要在这两个类型之间使用约束。
+
+```typescript
+function getProperty<T, K extends keyof T>(obj: T, key: K) {
+  return obj[key];
+}
+
+let x = { a: 1, b: 2, c: 3, d: 4 };
+
+getProperty(x, 'a'); // okay
+getProperty(x, 'm'); // error: Argument of type 'm' isn't assignable to 'a' | 'b' | 'c' | 'd'.
+```
