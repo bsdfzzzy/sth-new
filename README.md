@@ -247,3 +247,124 @@ let x = [0, 1, null]; // number | null
 
 let zoo = [new Rhino(), new Elephant(), new Snake()]; // (Rhino | Elephant | Snake)[]
 ```
+
+## 类型兼容性
+
+### 可靠性
+
+## 高级类型
+
+### 交叉类型
+
+如 `Person & Serializable & Loggable`
+
+### 联合类型
+
+如 `string | number`
+
+### 类型保护与区分类型
+
+通过类型断言判断类型：
+
+```typescript
+let pet = getSmallPet();
+
+if ((<Fish>pet).swim) {
+  (<Fish>pet).swim();
+} else {
+  (<Bird>pet).fly();
+}
+```
+
+使用 typeof (number/string/boolean/object/function/symbol) 做类型保护：
+
+```typescript
+function padLeft(value: string, padding: string | number) {
+  if (typeof padding === 'number') {
+    return Array(padding + 1).join(' ') + value;
+  }
+  if (typeof padding === 'string') {
+    return padding + value;
+  }
+  throw new Error(`Expected string or number, got '${padding}'.`);
+}
+```
+
+使用 instanceof 做类型保护 ：
+
+```typescript
+interface Padder {
+  getPaddingString(): string;
+}
+
+class SpaceRepeatingPadder implements Padder {
+  constructor(private numSpaces: number) {}
+  getPaddingString() {
+    return Array(this.numSpaces + 1).join(' ');
+  }
+}
+
+class StringPadder implements Padder {
+  constructor(private value: string) {}
+  getPaddingString() {
+    return this.value;
+  }
+}
+
+function getRandomPadder() {
+  return Math.random() < 0.5
+    ? new SpaceRepeatingPadder(4)
+    : new StringPadder('  ');
+}
+
+// 类型为SpaceRepeatingPadder | StringPadder
+let padder: Padder = getRandomPadder();
+
+if (padder instanceof SpaceRepeatingPadder) {
+  padder; // 类型细化为'SpaceRepeatingPadder'
+}
+if (padder instanceof StringPadder) {
+  padder; // 类型细化为'StringPadder'
+}
+```
+
+`instanceof`的右侧要求是一个构造函数，TypeScript 将细化为：
+
+1. 此构造函数的`prototype`属性的类型，如果它的类型不为`any`的话
+2. 构造签名所返回的类型的联合
+
+###  类型别名
+
+```typescript
+type Name = string;
+type NameResolver = () => string;
+type NameOrResolver = Name | NameResolver;
+function getName(n: NameOrResolver): Name {
+  if (typeof n === 'string') {
+    return n;
+  } else {
+    return n();
+  }
+}
+```
+
+### 字符串字面量类型
+
+```typescript
+type Easing = 'ease-in' | 'ease-out' | 'ease-in-out';
+class UIElement {
+  animate(dx: number, dy: number, easing: Easing) {
+    if (easing === 'ease-in') {
+      // ...
+    } else if (easing === 'ease-out') {
+    } else if (easing === 'ease-in-out') {
+    } else {
+      // error! should not pass null or undefined.
+    }
+  }
+}
+
+let button = new UIElement();
+button.animate(0, 0, 'ease-in');
+button.animate(0, 0, 'uneasy'); // error: "uneasy" is not allowed here
+```
