@@ -166,3 +166,17 @@ class Animal {
   }
 }
 ```
+
+## 函数
+
+### 剩余参数
+
+```typescript
+function buildName(firstName: string, ...restOfName: string[]) {
+  return firstName + ' ' + restOfName.join(' ');
+}
+```
+
+### This 和箭头函数
+
+箭头函数能保存函数创建时的`this`值，而不是调用时的值。
